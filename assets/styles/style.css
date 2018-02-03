@@ -1,0 +1,17 @@
+body {
+  background: #e3e3e3;
+}
+
+.resize {
+  width: 100%;
+  position: center center;
+}
+
+.resize-col {
+  min-height: 50vh;
+}
+
+.weapon-btns-format {
+  height: 100%;
+  align-items: center;
+}
