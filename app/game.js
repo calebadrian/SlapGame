@@ -1,16 +1,16 @@
-function Item(name, modifier, description, enabled){
+function Item(name, modifier, description){
     this.name = name
     this.modifier = modifier
     this.description = description
-    this.enabled = enabled
+    this.enabled = false
 }
 
-function Weapon(name, damage, description, enabled, uses, uselimit){
+function Weapon(name, damage, description, enabled, uselimit){
     this.name = name
     this.damage = damage
     this.description = description
     this.enabled = enabled
-    this.uses = uses
+    this.uses = 0
     this.uselimit = uselimit
 }
 
@@ -20,26 +20,27 @@ function Attack(name, damage, description){
     this.description = description
 }
 
-function Enemy(name, health, hits, items, attacks, currentMod, imgUrl){
+function Enemy(name, health, items, attacks, imgUrl){
     this.name = name
     this.health = health
-    this.hits = hits
+    this.hits = 0
     this.items = items
     this.attacks = attacks
-    this.currentMod = currentMod
+    this.currentMod = 1
     this.img = imgUrl
+    this.dead = ""
 }
 
 var items = {
-    armor: new Item("Armor", .2, "This is Armor!", false),
-    shield: new Item("Shield", .3, "Oh no they picked up a shield!", false),
-    potion: new Item("Potion", 25, "A potion to restore their health!", false)
+    armor: new Item("Armor", .2, "This is Armor!"),
+    shield: new Item("Shield", .3, "Oh no they picked up a shield!"),
+    potion: new Item("Potion", 25, "A potion to restore their health!")
 }
 
 var weapons = {
-    axe: new Weapon("Axe", 20, "A blunt axe that does a small amount of damage", true, 0, 5),
-    sword: new Weapon("Sword", 50, "A nice sharpened sword that does a fair amount of damage", false, 0, 3),
-    switchWeapon: new Weapon("Switch Weapon", 0, "Lose a turn and switch weapons", true, 0, -1)
+    axe: new Weapon("Axe", 100, "A blunt axe that does a small amount of damage", true, 5),
+    sword: new Weapon("Sword", 50, "A nice sharpened sword that does a fair amount of damage", false, 3),
+    switchWeapon: new Weapon("Switch Weapon", 0, "Lose a turn and switch weapons", true, -1)
 }
 
 var attacks = {
@@ -47,8 +48,11 @@ var attacks = {
     bite: new Attack("Bite", 10, "Nom nom nom")
 }
 
-var enemies = [new Enemy("Great Jagras", 100, 0, [items.armor, items.shield, items.potion], [attacks.scratch, attacks.bite], 1, "http://placehold.it/200x200"),
-                new Enemy("Anjanath", 120, 0, [items.armor, items.shield, items.potion], [attacks.scratch, attacks.bite], 1, "http://placehold.it/200x200")]
+var enemies = [new Enemy("Great Jagras", 100, [items.armor, items.shield, items.potion], [attacks.scratch, attacks.bite], "https://vignette.wikia.nocookie.net/monsterhunter/images/f/f5/MHW-Great_Jagras_Render_001.png/revision/latest?cb=20171012121738"),
+                new Enemy("Kulu-Ya-Ku", 120, [items.armor, items.shield, items.potion], [attacks.scratch, attacks.bite], "https://vignette.wikia.nocookie.net/monsterhunter/images/7/7c/MHW-Kulu-Ya-Ku_Render_001.png/revision/latest?cb=20171204124443"),
+                new Enemy("Pukei-Pukei", 140, [items.armor, items.shield, items.potion], [attacks.bite, attacks.scratch], "https://vignette.wikia.nocookie.net/monsterhunter/images/e/e3/MHW-Pukei-Pukei_Render_001.png/revision/latest?cb=20171011151724"),
+                new Enemy("Tobi-Kadachi", 160, [items.armor, items.shield, items.potion], [attacks.bite, attacks.scratch], "https://vignette.wikia.nocookie.net/monsterhunter/images/a/a1/MHW-Tobi-Kadachi_Render_001.png/revision/latest?cb=20171011093207"),
+                new Enemy("Anjanath", 180, [items.armor, items.shield, items.potion], [attacks.bite, attacks.scratch], "https://vignette.wikia.nocookie.net/monsterhunter/images/9/9d/MHW-Anjanath_Render_001.png/revision/latest?cb=20171012123741")]
 
 var player = {
     health: 100,
@@ -56,45 +60,50 @@ var player = {
     hits: 0,
     weapons: [weapons.axe, weapons.sword, weapons.switchWeapon],
     currentMod: 1,
-    defeated: 0
+    defeated: 0,
+    dead: "",
+    equipped: "Axe"
 }
 
-//enemy display variables
-var enemyNameDisplay = document.getElementById("enemy-name-display")
-var enemyHealthDisplay = document.getElementById("enemy-health-display")
-var enemyHitsDisplay = document.getElementById("enemy-hits-display")
-var enemyImgDisplay = document.getElementById("enemy-img-display")
-
-//player display variables
-var playerNameDisplay = document.getElementById("player-name-display")
-var playerHealthDisplay = document.getElementById("player-health-display")
-var playerHitsDisplay = document.getElementById("player-hits-display")
-
-//container display variables
-var itemsContainer = document.getElementById("items-container")
-var weaponsContainer = document.getElementById("weapons-container")
-var knockoutDisplay = document.getElementById("knockout-display")
+var contentContainer = document.getElementById("content-container")
 
 function damage(weaponChoice){
-    if (weaponChoice == 'Switch Weapon'){
-        for (let i = 0; i < player.weapons.length; i++) {
-            const weapon = player.weapons[i];
-            if (weapon.uses == weapon.uselimit){
-                weapon.enabled == false
-                weapon.uses = 0
-                if (i == 1){
-                    player.weapons[0].enabled = true
-                    enemyAttack()
-                    checkHealth()
-                    return
-                } else {
-                    player.weapons[1].enabled = true
-                    enemyAttack()
-                    checkHealth()
-                    return
-                }
+    if (weaponChoice == 'Switch Weapon' && player.weapons[2].enabled == true){
+        if (player.equipped == "Axe"){
+            if (player.weapons[1].uses >= player.weapons[1].uselimit){
+                player.weapons[1].enabled = false
+            } else {
+                player.weapons[1].enabled = true
             }
+            player.equipped = "Sword"
+            player.weapons[0].enabled = false
+            if (enemies[player.defeated].dead != ""){
+                enemies[player.defeated].dead = ""
+            }
+            enemyAttack()
+            checkHealth()
+            draw()
+            return
+        } else {
+            if (player.weapons[0].uses >= player.weapons[0].uselimit){
+                player.weapons[0].enabled = false
+            } else {
+                player.weapons[0].enabled = true
+            }
+            player.equipped = "Axe"
+            player.weapons[1].enabled = false
+            if (enemies[player.defeated].dead != ""){
+                enemies[player.defeated].dead = ""
+            }
+            enemyAttack()
+            checkHealth()
+            draw()
+            return
         }
+        enemyAttack()
+        checkHealth()
+        draw()
+        return
     }
     for (let i = 0; i < player.weapons.length; i++) {
         const weapon = player.weapons[i]
@@ -103,22 +112,49 @@ function damage(weaponChoice){
             if (weapon.uses == weapon.uselimit){
                 weapon.enabled = false
             }
-            console.log(weapon.damage)
             var damageCalc = Math.floor(Math.random() * weapon.damage) * enemies[player.defeated].currentMod
-            console.log(damageCalc)
             enemies[player.defeated].health -= damageCalc
             if (damageCalc == 0){
 
             } else {
                 enemies[player.defeated].hits ++
             }
-            drawEnemyHealth()
-            drawEnemyHits()
+            if (enemies[player.defeated].dead != ""){
+                enemies[player.defeated].dead = ""
+            }
             checkHealth()
             enemyAttack()
             checkHealth()
+            draw()
             return
         }
+    }
+}
+
+function sharpen(){
+    if (player.health <= 0){
+        return
+    }
+    if (player.equipped == player.weapons[0].name){
+        player.weapons[0].uses = 0
+        player.weapons[0].enabled = true
+        if (enemies[player.defeated].dead != ""){
+            enemies[player.defeated].dead = ""
+        }
+        enemyAttack()
+        checkHealth()
+        draw()
+        return
+    } else {
+        player.weapons[1].uses = 0
+        player.weapons[1].enabled = true
+        if (enemies[player.defeated].dead != ""){
+            enemies[player.defeated].dead = ""
+        }
+        enemyAttack()
+        checkHealth()
+        draw()
+        return
     }
 }
 
@@ -126,15 +162,16 @@ function enemyAttack(){
     var attack = enemies[player.defeated].attacks[Math.floor(Math.random() * (enemies[player.defeated].attacks.length))]
     player.health -= attack.damage
     player.hits++
-    drawPlayerHealth()
-    drawPlayerHits()
 }
 
 function addMods(itemChoice){
     var mod = 0
     if (itemChoice == 'Potion' && enemies[player.defeated].items[2].enabled != true){
         enemies[player.defeated].health += enemies[player.defeated].items[2].modifier
-        drawEnemyHealth()
+        if (enemies[player.defeated].dead != ""){
+            enemies[player.defeated].dead = ""
+        }
+        draw()
         enemies[player.defeated].items[2].enabled = true
         return
     }
@@ -143,86 +180,84 @@ function addMods(itemChoice){
         if (item.name == itemChoice && item.enabled != true){
             mod -= item.modifier
             item.enabled = true
+            if (enemies[player.defeated].dead != ""){
+                enemies[player.defeated].dead = ""
+            }
         }
     }
     enemies[player.defeated].currentMod += mod
+    draw()
 }
 
-function drawEnemyName(){
-    const template = `${enemies[player.defeated].name}`
-    enemyNameDisplay.innerHTML = template
-}
-
-function drawPlayerName(){
-    const template = `${player.name}`
-    playerNameDisplay.innerHTML = template
-}
-
-function drawEnemyHealth(){
-    const template = `${enemies[player.defeated].health}`
-    enemyHealthDisplay.innerHTML = template
-}
-
-function drawPlayerHealth(){
-    const template = `${player.health}`
-    playerHealthDisplay.innerHTML = template
-}
-
-function drawEnemyHits(){
-    const template = `${enemies[player.defeated].hits}`
-    enemyHitsDisplay.innerHTML = template
-}
-
-function drawPlayerHits(){
-    const template = `${player.hits}`
-    playerHitsDisplay.innerHTML = template
-}
-
-function drawEnemyImg(){
-    const template = `<img src="${enemies[player.defeated].img}" alt="" class="resize">`
-    enemyImgDisplay.innerHTML = template
-}
-
-function drawItemButtons(){
-    let template = ''
+function draw(){
+    var equippedWeapon = player.equipped
+    if (player.weapons[0].name == equippedWeapon){
+        var usesRemaining = player.weapons[0].uselimit - player.weapons[0].uses
+    } else {
+        var usesRemaining = player.weapons[1].uselimit - player.weapons[1].uses
+    }
+    let template = `
+    <div class="row title-format">
+        <div class="col-sm-6 m-b-1 p-t-1">
+            <h4>Name: ${enemies[player.defeated].name}</h4>
+            <h4>Health: ${enemies[player.defeated].health}</h4>
+            <h4>Hits: ${enemies[player.defeated].hits}</h4>
+        </div>
+        <div class="col-sm-6 m-b-1 p-t-1">
+            <h4>Name: ${player.name}</h4>
+            <h4>Health: ${player.health}</h4>
+            <h4>Hits: ${player.hits}</h4>
+        </div>
+    </div>
+    <div class="row align-items-center">
+        <div class="col-md-6 col-sm-12 resize-col m-b-3">
+            <img src="${enemies[player.defeated].img}" alt="" class="resize p-t-1 m-b-1">
+                <div class="row weapon-btns-format p-t-1">`
     for (let i = 0; i < enemies[player.defeated].items.length; i++) {
         const item = enemies[player.defeated].items[i];
-        template += `
-        <button class="btn-primary" onclick="addMods('${enemies[player.defeated].items[i].name}')">${enemies[player.defeated].items[i].name}</button>`
-    }
-    itemsContainer.innerHTML = template
-}
-
-function drawWeaponButtons(){
-    let template = ''
-    for (let i = 0; i < player.weapons.length; i++){
+        template +=`
+                <div class="col-md-3 col-sm-12">
+                    <button class="btn-primary m-b-1" onclick="addMods('${enemies[player.defeated].items[i].name}')">${enemies[player.defeated].items[i].name}</button>
+                </div>`
+                }
+    template += `
+                <div class="col-md-3 col-sm-12">
+                    <button class="btn-danger m-b-1" onclick="reset()">Reset</button>
+                </div>
+            </div>
+            <h1>${enemies[player.defeated].dead}</h1>
+        </div>
+        <div class="col-md-6 col-sm-12 resize-col">
+            <img src="https://vignette.wikia.nocookie.net/monsterhunter/images/1/17/Sword_and_shield%2C_monster_hunter_tri.png/revision/latest?cb=20100605202331" alt="" class="resize p-t-1">
+            <div class="row weapon-btns-format p-t-1">
+    `
+    for (let i = 0; i < player.weapons.length; i++) {
         const weapon = player.weapons[i];
-        template += `
-        <div class="col-md-4 col-sm-6">
-            <button class="btn-primary" onclick="damage('${weapon.name}')">${weapon.name}</button>
-        </div>`
+        template +=`
+                <div class="col-md-3 col-sm-12">
+                    <button class="btn-primary m-b-1" onclick="damage('${weapon.name}')">${weapon.name}</button>
+                </div>
+        `
     }
-    weaponsContainer.innerHTML = template
-}
-
-function drawKnockout(){
-    let template = `<h1>You Died!</h1>`
-    knockoutDisplay.innerHTML = template
-}
-
-function drawEmptyKnockout(){
-    let template = ``
-    knockoutDisplay.innerHTML = template
+    template += `
+                <div class="col-md-3 col-sm-12 m-b-1">
+                    <button class="btn-danger" onclick="sharpen()">Sharpen</button>
+                </div>
+                <div class="col-sm-12">
+                    <h4>Currently Equipped Weapon: ${player.equipped}</h4>
+                    <h4>Current Weapon Uses: ${usesRemaining}</h4>
+                    <h1>${player.dead}</h1>
+                </div>
+            </div>`
+    contentContainer.innerHTML = template
 }
 
 function checkHealth(){
-    if (enemies[player.defeated].health <= 0 && player.health >= 0){
+    if (enemies[player.defeated].health <= 0 && player.health > 0){
         player.defeated ++
-        drawEnemyHealth()
-        drawEnemyHits()
-        drawEnemyName()
-        drawEnemyImg()
+        enemies[player.defeated].dead = enemies[player.defeated - 1].name + " Defeated!"
     } else if (player.health <= 0){
+        player.dead = "You Died!"
         for (let i = 0; i < player.weapons.length; i++) {
             const weapon = player.weapons[i];
             weapon.enabled = false            
@@ -231,7 +266,7 @@ function checkHealth(){
             const item = enemies[player.defeated].items[i];
             item.enabled = true
         }
-        drawKnockout()
+        draw()
     }
 }
 
@@ -247,6 +282,8 @@ function reset(){
     player.hits = 0
     player.currentMod = 0
     player.defeated = 0
+    player.dead = ""
+    player.equipped = "Axe"
     for (let i = 0; i < player.weapons.length; i++) {
         const weapon = player.weapons[i];
         if (i == 1){
@@ -260,22 +297,7 @@ function reset(){
         const item = enemies[player.defeated].items[i];
         item.enabled = false
     }
-    drawEnemyHealth()
-    drawEnemyHits()
-    drawEnemyName()
-    drawEnemyImg()
-    drawPlayerHealth()
-    drawPlayerHits()
-    drawEmptyKnockout()
+    draw()
 }
 
-
-drawEnemyName()
-drawEnemyHealth()
-drawEnemyHits()
-drawEnemyImg()
-drawPlayerName()
-drawPlayerHealth()
-drawPlayerHits()
-drawItemButtons()
-drawWeaponButtons()
+draw()
