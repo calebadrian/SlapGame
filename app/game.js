@@ -38,7 +38,7 @@ var items = {
 }
 
 var weapons = {
-    axe: new Weapon("Axe", 100, "A blunt axe that does a small amount of damage", true, 5),
+    axe: new Weapon("Axe", 25, "A blunt axe that does a small amount of damage", true, 5),
     sword: new Weapon("Sword", 50, "A nice sharpened sword that does a fair amount of damage", false, 3),
     switchWeapon: new Weapon("Switch Weapon", 0, "Lose a turn and switch weapons", true, -1)
 }
@@ -301,7 +301,6 @@ function checkHealth(){
 }
 
 function reset(){
-    player.defeated = 0
     for (let i = 0; i < enemies.length; i++) {
         const enemy = enemies[i];
         enemy.health = 100 + (20*i)
