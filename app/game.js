@@ -125,7 +125,6 @@ function damage(weaponChoice){
             var damageCalc = Math.floor(Math.random() * weapon.damage) * enemies[player.defeated].currentMod
             enemies[player.defeated].health -= damageCalc
             if (damageCalc == 0){
-                debugger
                 enemies[player.defeated].dead = enemies[player.defeated].name + " dodged your attack!"
             } else {
                 enemies[player.defeated].hits ++
@@ -220,6 +219,9 @@ function draw(firstdraw){
     }
     let template = `
     <div class="row title-format">
+        <div class="col-sm-12 p-t-1">
+            <h1>Welcome to the Ancient Forest!</h1>
+        </div>
         <div class="col-sm-6 m-b-1 p-t-1">
             <h4>Name: ${player.name}</h4>
             <h4>Health: ${player.health}</h4>
@@ -234,6 +236,9 @@ function draw(firstdraw){
     <div class="row">
         <div class="col-md-6 col-sm-12 col-format">
             <img src="https://vignette.wikia.nocookie.net/monsterhunter/images/1/17/Sword_and_shield%2C_monster_hunter_tri.png/revision/latest?cb=20100605202331" alt="" class="resize shake" id="player-img">
+                <div class="progress m-b-1">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: ${player.health}%" aria-valuenow="${player.health}" aria-valuemin="0" aria-valuemax="100">${player.health} hp</div>
+                </div>
                 <div class="row">`
 
     for (let i = 0; i < player.weapons.length; i++) {
@@ -257,6 +262,9 @@ function draw(firstdraw){
         </div>
         <div class="col-md-6 col-sm-12 col-format">
         <img src="${enemies[player.defeated].img}" alt="" class="resize">
+        <div class="progress m-b-1">
+            <div class="progress-bar bg-danger progress-bar-striped progress-bar-animated" role="progressbar" style="width: ${enemies[player.defeated].health}%" aria-valuenow="${enemies[player.defeated].health}" aria-valuemin="0" aria-valuemax="${enemies[player.defeated].health}">${enemies[player.defeated].health} hp</div>
+        </div>
             <div class="row">
     `
     for (let i = 0; i < enemies[player.defeated].items.length; i++) {
