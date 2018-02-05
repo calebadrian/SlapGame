@@ -38,8 +38,8 @@ var items = {
 }
 
 var weapons = {
-    axe: new Weapon("Axe", 35, "A blunt axe that does a small amount of damage", true, 7),
-    sword: new Weapon("Sword", 60, "A nice sharpened sword that does a fair amount of damage", false, 3),
+    axe: new Weapon("Axe", 60, "A blunt axe that does a small amount of damage", true, 7),
+    sword: new Weapon("Sword", 90, "A nice sharpened sword that does a fair amount of damage", false, 3),
     switchWeapon: new Weapon("Switch Weapon", 0, "Lose a turn and switch weapons", true, -1)
 }
 
@@ -53,7 +53,7 @@ var enemies = [new Enemy("Great Jagras", 100, [items.protectHome, items.younglin
                 new Enemy("Pukei-Pukei", 140, [items.protectHome, items.younglings, items.sleep], [attacks.bite, attacks.scratch], "../assets/photos/pukei-pukei.png"),
                 new Enemy("Tobi-Kadachi", 160, [items.protectHome, items.younglings, items.sleep], [attacks.bite, attacks.scratch], "../assets/photos/tobi-kadachi.png"),
                 new Enemy("Anjanath", 180, [items.protectHome, items.younglings, items.sleep], [attacks.bite, attacks.scratch], "../assets/photos/anjanath.png"),
-                new Enemy("Game Over", 200, [], [], "../assets/photos/trophy.png")]
+                new Enemy("Game Over", 0, [], [], "../assets/photos/trophy.png")]
 
 var player = {
     health: 100,
@@ -90,7 +90,7 @@ function damage(weaponChoice){
             checkHealth()
             enemyAttack()
             checkHealth()
-            draw(false)
+            draw(false, false)
             return
         } else {
             if (player.weapons[0].uses >= player.weapons[0].uselimit){
@@ -106,13 +106,13 @@ function damage(weaponChoice){
             checkHealth()
             enemyAttack()
             checkHealth()
-            draw(false)
+            draw(false, false)
             return
         }
         checkHealth()
         enemyAttack()
         checkHealth()
-        draw(false)
+        draw(false, false)
         return
     }
     for (let i = 0; i < player.weapons.length; i++) {
@@ -134,7 +134,7 @@ function damage(weaponChoice){
             }
             enemyAttack()
             checkHealth()
-            draw(false)
+            draw(false, false)
             return
         }
     }
@@ -152,7 +152,7 @@ function sharpen(){
         }
         enemyAttack()
         checkHealth()
-        draw(false)
+        draw(false, false)
         return
     } else {
         player.weapons[1].uses = 0
@@ -162,7 +162,7 @@ function sharpen(){
         }
         enemyAttack()
         checkHealth()
-        draw(false)
+        draw(false, false)
         return
     }
 }
@@ -183,13 +183,13 @@ function enemyAttack(){
 
 function addMods(itemChoice){
     var mod = 0
-    if (itemChoice == 'sleep' && enemies[player.defeated].items[2].enabled != true){
+    if (itemChoice == 'Sleep' && enemies[player.defeated].items[2].enabled != true){
         enemies[player.defeated].health += enemies[player.defeated].items[2].modifier
         if (enemies[player.defeated].dead != ""){
             enemies[player.defeated].dead = ""
         }
         enemies[player.defeated].items[2].enabled = true
-        draw(true)
+        draw(true, false)
         return
     }
     for (let i = 0; i < enemies[player.defeated].items.length; i++) {
@@ -203,10 +203,14 @@ function addMods(itemChoice){
         }
     }
     enemies[player.defeated].currentMod += mod
-    draw(true)
+    draw(true, false)
 }
 
-function draw(firstdraw){
+function draw(firstdraw, pageopening){
+    if (pageopening == true){
+        var playerName = prompt("Please enter your name!")
+        player.name = playerName
+    }
     if (firstdraw == false){
         var playerImg = document.getElementById("player-img")
         playerImg.classList.add("shake")
@@ -222,12 +226,12 @@ function draw(firstdraw){
         <div class="col-sm-12 p-t-1">
             <h1>Welcome to the Ancient Forest!</h1>
         </div>
-        <div class="col-sm-6 m-b-1 p-t-1">
+        <div class="col-sm-6 p-t-1">
             <h4>Name: ${player.name}</h4>
             <h4>Health: ${player.health}</h4>
             <h4>Hits: ${player.hits}</h4>
         </div>
-        <div class="col-sm-6 m-b-1 p-t-1">
+        <div class="col-sm-6 p-t-1">
             <h4>Name: ${enemies[player.defeated].name}</h4>
             <h4>Health: ${enemies[player.defeated].health}</h4>
             <h4>Hits: ${enemies[player.defeated].hits}</h4>
@@ -256,7 +260,7 @@ function draw(firstdraw){
                 <div class="col-sm-12">
                     <h4>Currently Equipped Weapon: ${player.equipped}</h4>
                     <h4>Current Weapon Uses: ${usesRemaining}</h4>
-                    <h1>${player.dead}</h1>
+                    <h4>${player.dead}</h4>
                 </div>
             </div>
         </div>
@@ -279,7 +283,7 @@ function draw(firstdraw){
                     <button class="btn-danger weapon-btn-format" onclick="reset()">Reset</button>
                 </div>
                 <div class="col-sm-12">
-                    <h1>${enemies[player.defeated].dead}</h1>
+                    <h4>${enemies[player.defeated].dead}</h4>
                 </div>
             </div>
         </div>`
@@ -304,7 +308,7 @@ function checkHealth(){
                 item.enabled = true
             }
             player.dead = "You Win!"
-            draw(false)
+            draw(false, false)
             return player.dead
         }
     } else if (player.health <= 0){
@@ -317,14 +321,18 @@ function checkHealth(){
             const item = enemies[player.defeated].items[i];
             item.enabled = true
         }
-        draw(false)
+        draw(false, false)
     }
 }
 
 function reset(){
     for (let i = 0; i < enemies.length; i++) {
         const enemy = enemies[i];
-        enemy.health = 100 + (20*i)
+        if (i == (enemies.length - 1)){
+            enemy.health = 0
+        } else {
+            enemy.health = 100 + (20*i)
+        }
         enemy.hits = 0
         enemy.currentMod = 1
     }
@@ -347,7 +355,7 @@ function reset(){
         const item = enemies[player.defeated].items[i];
         item.enabled = false
     }
-    draw(true)
+    draw(true, false)
 }
 
-draw(true)
+draw(true, true)
