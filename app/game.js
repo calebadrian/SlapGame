@@ -212,56 +212,60 @@ function draw(firstdraw){
     let template = `
     <div class="row title-format">
         <div class="col-sm-6 m-b-1 p-t-1">
-            <h4>Name: ${enemies[player.defeated].name}</h4>
-            <h4>Health: ${enemies[player.defeated].health}</h4>
-            <h4>Hits: ${enemies[player.defeated].hits}</h4>
-        </div>
-        <div class="col-sm-6 m-b-1 p-t-1">
             <h4>Name: ${player.name}</h4>
             <h4>Health: ${player.health}</h4>
             <h4>Hits: ${player.hits}</h4>
         </div>
-    </div>
-    <div class="row align-items-center">
-        <div class="col-md-6 col-sm-12 resize-col m-b-3">
-            <img src="${enemies[player.defeated].img}" alt="" class="resize p-t-1 m-b-1">
-                <div class="row weapon-btns-format p-t-1">`
-    for (let i = 0; i < enemies[player.defeated].items.length; i++) {
-        const item = enemies[player.defeated].items[i];
-        template +=`
-                <div class="col-md-3 col-sm-12">
-                    <button class="btn-primary m-b-1" onclick="addMods('${enemies[player.defeated].items[i].name}')">${enemies[player.defeated].items[i].name}</button>
-                </div>`
-                }
-    template += `
-                <div class="col-md-3 col-sm-12">
-                    <button class="btn-danger m-b-1" onclick="reset()">Reset</button>
-                </div>
-            </div>
-            <h1>${enemies[player.defeated].dead}</h1>
+        <div class="col-sm-6 m-b-1 p-t-1">
+            <h4>Name: ${enemies[player.defeated].name}</h4>
+            <h4>Health: ${enemies[player.defeated].health}</h4>
+            <h4>Hits: ${enemies[player.defeated].hits}</h4>
         </div>
-        <div class="col-md-6 col-sm-12 resize-col">
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-sm-12 col-format">
             <img src="https://vignette.wikia.nocookie.net/monsterhunter/images/1/17/Sword_and_shield%2C_monster_hunter_tri.png/revision/latest?cb=20100605202331" alt="" class="resize shake" id="player-img">
-            <div class="row weapon-btns-format p-t-1">
-    `
+                <div class="row">`
+
     for (let i = 0; i < player.weapons.length; i++) {
         const weapon = player.weapons[i];
-        template +=`
-                <div class="col-md-3 col-sm-12">
-                    <button class="btn-primary m-b-1" onclick="damage('${weapon.name}')">${weapon.name}</button>
+            template +=`
+                <div class="col-md-3 col-sm-12 m-b-1">
+                    <button class="btn-primary weapon-btn-format" onclick="damage('${weapon.name}')">${weapon.name}</button>
                 </div>
-        `
+                    `
     }
     template += `
                 <div class="col-md-3 col-sm-12 m-b-1">
-                    <button class="btn-danger" onclick="sharpen()">Sharpen</button>
+                    <button class="btn-danger weapon-btn-format" onclick="sharpen()">Sharpen</button>
                 </div>
                 <div class="col-sm-12">
                     <h4>Currently Equipped Weapon: ${player.equipped}</h4>
                     <h4>Current Weapon Uses: ${usesRemaining}</h4>
                     <h1>${player.dead}</h1>
                 </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-sm-12 col-format">
+        <img src="${enemies[player.defeated].img}" alt="" class="resize">
+            <div class="row">
+    `
+    for (let i = 0; i < enemies[player.defeated].items.length; i++) {
+        const item = enemies[player.defeated].items[i];
+        template +=`
+            <div class="col-md-3 col-sm-12 m-b-1">
+                <button class="btn-primary weapon-btn-format" onclick="addMods('${enemies[player.defeated].items[i].name}')">${enemies[player.defeated].items[i].name}</button>
             </div>`
+    }
+    template += `
+                <div class="col-md-3 col-sm-12 m-b-1">
+                    <button class="btn-danger weapon-btn-format" onclick="reset()">Reset</button>
+                </div>
+                <div class="col-sm-12">
+                    <h1>${enemies[player.defeated].dead}</h1>
+                </div>
+            </div>
+        </div>`
     contentContainer.innerHTML = template
     if (firstdraw == true){
         var playerImg = document.getElementById("player-img")
