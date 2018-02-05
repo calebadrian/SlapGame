@@ -72,6 +72,9 @@ var contentContainer = document.getElementById("content-container")
 function damage(weaponChoice){
     var playerImg = document.getElementById("player-img")
     playerImg.classList.add("shake")
+    if (enemies[player.defeated].dead != ""){
+        enemies[player.defeated].dead = ""
+    }
     if (weaponChoice == 'Switch Weapon' && player.weapons[2].enabled == true){
         if (player.equipped == "Axe"){
             if (player.weapons[1].uses >= player.weapons[1].uselimit){
@@ -122,12 +125,10 @@ function damage(weaponChoice){
             var damageCalc = Math.floor(Math.random() * weapon.damage) * enemies[player.defeated].currentMod
             enemies[player.defeated].health -= damageCalc
             if (damageCalc == 0){
-
+                debugger
+                enemies[player.defeated].dead = enemies[player.defeated].name + " dodged your attack!"
             } else {
                 enemies[player.defeated].hits ++
-            }
-            if (enemies[player.defeated].dead != ""){
-                enemies[player.defeated].dead = ""
             }
             if (checkHealth() == "You Win!"){
                 return
@@ -168,9 +169,17 @@ function sharpen(){
 }
 
 function enemyAttack(){
+    if (player.dead != ""){
+        player.dead = ""
+    }
     var attack = enemies[player.defeated].attacks[Math.floor(Math.random() * (enemies[player.defeated].attacks.length))]
-    player.health -= Math.floor(Math.random() * attack.damage)
-    player.hits++
+    var damageDealt = Math.floor(Math.random() * attack.damage)
+    player.health -= damageDealt
+    if (damageDealt == 0){
+        player.dead = "You dodged " + enemies[player.defeated].name + "'s attack!"
+        return
+    }
+    player.hits ++
 }
 
 function addMods(itemChoice){
@@ -180,8 +189,8 @@ function addMods(itemChoice){
         if (enemies[player.defeated].dead != ""){
             enemies[player.defeated].dead = ""
         }
-        draw(false)
         enemies[player.defeated].items[2].enabled = true
+        draw(true)
         return
     }
     for (let i = 0; i < enemies[player.defeated].items.length; i++) {
@@ -195,7 +204,7 @@ function addMods(itemChoice){
         }
     }
     enemies[player.defeated].currentMod += mod
-    draw(false)
+    draw(true)
 }
 
 function draw(firstdraw){
