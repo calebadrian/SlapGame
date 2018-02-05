@@ -32,14 +32,14 @@ function Enemy(name, health, items, attacks, imgUrl){
 }
 
 var items = {
-    armor: new Item("Armor", .2, "This is Armor!"),
-    shield: new Item("Shield", .3, "Oh no they picked up a shield!"),
-    potion: new Item("Potion", 25, "A potion to restore their health!")
+    protectHome: new Item("Protect Home", .2, "Monster protects their home!"),
+    younglings: new Item("Call young ones", .3, "They brought the kids!"),
+    sleep: new Item("Sleep", 25, "Sleep to restore their health!")
 }
 
 var weapons = {
-    axe: new Weapon("Axe", 25, "A blunt axe that does a small amount of damage", true, 5),
-    sword: new Weapon("Sword", 50, "A nice sharpened sword that does a fair amount of damage", false, 3),
+    axe: new Weapon("Axe", 35, "A blunt axe that does a small amount of damage", true, 7),
+    sword: new Weapon("Sword", 60, "A nice sharpened sword that does a fair amount of damage", false, 3),
     switchWeapon: new Weapon("Switch Weapon", 0, "Lose a turn and switch weapons", true, -1)
 }
 
@@ -48,12 +48,12 @@ var attacks = {
     bite: new Attack("Bite", 10, "Nom nom nom")
 }
 
-var enemies = [new Enemy("Great Jagras", 100, [items.armor, items.shield, items.potion], [attacks.scratch, attacks.bite], "https://vignette.wikia.nocookie.net/monsterhunter/images/f/f5/MHW-Great_Jagras_Render_001.png/revision/latest?cb=20171012121738"),
-                new Enemy("Kulu-Ya-Ku", 120, [items.armor, items.shield, items.potion], [attacks.scratch, attacks.bite], "https://vignette.wikia.nocookie.net/monsterhunter/images/7/7c/MHW-Kulu-Ya-Ku_Render_001.png/revision/latest?cb=20171204124443"),
-                new Enemy("Pukei-Pukei", 140, [items.armor, items.shield, items.potion], [attacks.bite, attacks.scratch], "https://vignette.wikia.nocookie.net/monsterhunter/images/e/e3/MHW-Pukei-Pukei_Render_001.png/revision/latest?cb=20171011151724"),
-                new Enemy("Tobi-Kadachi", 160, [items.armor, items.shield, items.potion], [attacks.bite, attacks.scratch], "https://vignette.wikia.nocookie.net/monsterhunter/images/a/a1/MHW-Tobi-Kadachi_Render_001.png/revision/latest?cb=20171011093207"),
-                new Enemy("Anjanath", 180, [items.armor, items.shield, items.potion], [attacks.bite, attacks.scratch], "https://vignette.wikia.nocookie.net/monsterhunter/images/9/9d/MHW-Anjanath_Render_001.png/revision/latest?cb=20171012123741"),
-                new Enemy("Game Over", 200, [], [], "http://www.pngpix.com/wp-content/uploads/2016/10/PNGPIX-COM-Trophy-Cup-PNG-Transparent-Image.png")]
+var enemies = [new Enemy("Great Jagras", 100, [items.protectHome, items.younglings, items.sleep], [attacks.scratch, attacks.bite], "../assets/photos/great-jagras.png"),
+                new Enemy("Kulu-Ya-Ku", 120, [items.protectHome, items.younglings, items.sleep], [attacks.scratch, attacks.bite], "../assets/photos/kulu-ya-ku.png"),
+                new Enemy("Pukei-Pukei", 140, [items.protectHome, items.younglings, items.sleep], [attacks.bite, attacks.scratch], "../assets/photos/pukei-pukei.png"),
+                new Enemy("Tobi-Kadachi", 160, [items.protectHome, items.younglings, items.sleep], [attacks.bite, attacks.scratch], "../assets/photos/tobi-kadachi.png"),
+                new Enemy("Anjanath", 180, [items.protectHome, items.younglings, items.sleep], [attacks.bite, attacks.scratch], "../assets/photos/anjanath.png"),
+                new Enemy("Game Over", 200, [], [], "../assets/photos/trophy.png")]
 
 var player = {
     health: 100,
@@ -183,7 +183,7 @@ function enemyAttack(){
 
 function addMods(itemChoice){
     var mod = 0
-    if (itemChoice == 'Potion' && enemies[player.defeated].items[2].enabled != true){
+    if (itemChoice == 'sleep' && enemies[player.defeated].items[2].enabled != true){
         enemies[player.defeated].health += enemies[player.defeated].items[2].modifier
         if (enemies[player.defeated].dead != ""){
             enemies[player.defeated].dead = ""
@@ -235,7 +235,7 @@ function draw(firstdraw){
     </div>
     <div class="row">
         <div class="col-md-6 col-sm-12 col-format">
-            <img src="https://vignette.wikia.nocookie.net/monsterhunter/images/1/17/Sword_and_shield%2C_monster_hunter_tri.png/revision/latest?cb=20100605202331" alt="" class="resize shake" id="player-img">
+            <img src="../assets/photos/player.png" alt="" class="resize shake" id="player-img">
                 <div class="progress m-b-1">
                     <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: ${player.health}%" aria-valuenow="${player.health}" aria-valuemin="0" aria-valuemax="100">${player.health} hp</div>
                 </div>
