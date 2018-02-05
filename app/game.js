@@ -48,12 +48,12 @@ var attacks = {
     bite: new Attack("Bite", 10, "Nom nom nom")
 }
 
-var enemies = [new Enemy("Great Jagras", 100, [items.protectHome, items.younglings, items.sleep], [attacks.scratch, attacks.bite], "../assets/photos/great-jagras.png"),
-                new Enemy("Kulu-Ya-Ku", 120, [items.protectHome, items.younglings, items.sleep], [attacks.scratch, attacks.bite], "../assets/photos/kulu-ya-ku.png"),
-                new Enemy("Pukei-Pukei", 140, [items.protectHome, items.younglings, items.sleep], [attacks.bite, attacks.scratch], "../assets/photos/pukei-pukei.png"),
-                new Enemy("Tobi-Kadachi", 160, [items.protectHome, items.younglings, items.sleep], [attacks.bite, attacks.scratch], "../assets/photos/tobi-kadachi.png"),
-                new Enemy("Anjanath", 180, [items.protectHome, items.younglings, items.sleep], [attacks.bite, attacks.scratch], "../assets/photos/anjanath.png"),
-                new Enemy("Game Over", 0, [], [], "../assets/photos/trophy.png")]
+var enemies = [new Enemy("Great Jagras", 100, [items.protectHome, items.younglings, items.sleep], [attacks.scratch, attacks.bite], "https://calebadrian.github.io/SlapGame/assets/photos/great-jagras.png"),
+                new Enemy("Kulu-Ya-Ku", 120, [items.protectHome, items.younglings, items.sleep], [attacks.scratch, attacks.bite], "https://calebadrian.github.io/SlapGame/assets/photos/kulu-ya-ku.png"),
+                new Enemy("Pukei-Pukei", 140, [items.protectHome, items.younglings, items.sleep], [attacks.bite, attacks.scratch], "https://calebadrian.github.io/SlapGame/assets/photos/pukei-pukei.png"),
+                new Enemy("Tobi-Kadachi", 160, [items.protectHome, items.younglings, items.sleep], [attacks.bite, attacks.scratch], "https://calebadrian.github.io/SlapGame/assets/photos/tobi-kadachi.png"),
+                new Enemy("Anjanath", 180, [items.protectHome, items.younglings, items.sleep], [attacks.bite, attacks.scratch], "https://calebadrian.github.io/SlapGame/assets/photos/anjanath.png"),
+                new Enemy("Game Over", 0, [], [], "https://calebadrian.github.io/SlapGame/assets/photos/trophy.png")]
 
 var player = {
     health: 100,
@@ -239,7 +239,7 @@ function draw(firstdraw, pageopening){
     </div>
     <div class="row">
         <div class="col-md-6 col-sm-12 col-format">
-            <img src="../assets/photos/player.png" alt="" class="resize shake" id="player-img">
+            <img src="https://calebadrian.github.io/SlapGame/assets/photos/player.png" alt="" class="resize shake" id="player-img">
                 <div class="progress m-b-1">
                     <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: ${player.health}%" aria-valuenow="${player.health}" aria-valuemin="0" aria-valuemax="100">${player.health} hp</div>
                 </div>
