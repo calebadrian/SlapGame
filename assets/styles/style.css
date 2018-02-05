@@ -3,20 +3,21 @@ body {
 }
 
 .resize {
-  width: 50%;
-  display: block;
-  margin-left: 25%;
+  height: 100%;
   position: center center;
 }
 
 .resize-col {
-  min-height: 30vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
   text-align: center;
 }
 
 .weapon-btns-format {
   height: 100%;
-  align-items: flex-end;
   justify-content: center;
 }
 
@@ -38,4 +39,45 @@ body {
 
 .m-b-3 {
   margin-bottom: 3rem;
+}
+
+@keyframes shake {
+  0% {
+    transform: rotate(0deg);
+  }
+  10% {
+    transform: rotate(20deg);
+  }
+  20% {
+    transform: rotate(-20deg);
+  }
+  30% {
+    transform: rotate(20deg);
+  }
+  40% {
+    transform: rotate(-20deg);
+  }
+  50% {
+    transform: rotate(20deg);
+  }
+  60% {
+    transform: rotate(-20deg);
+  }
+  70% {
+    transform: rotate(20deg);
+  }
+  80% {
+    transform: rotate(-20deg);
+  }
+  90% {
+    transform: rotate(-20deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.shake {
+  animation-name: shake;
+  animation-duration: .8s;
 }

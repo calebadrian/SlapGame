@@ -52,7 +52,8 @@ var enemies = [new Enemy("Great Jagras", 100, [items.armor, items.shield, items.
                 new Enemy("Kulu-Ya-Ku", 120, [items.armor, items.shield, items.potion], [attacks.scratch, attacks.bite], "https://vignette.wikia.nocookie.net/monsterhunter/images/7/7c/MHW-Kulu-Ya-Ku_Render_001.png/revision/latest?cb=20171204124443"),
                 new Enemy("Pukei-Pukei", 140, [items.armor, items.shield, items.potion], [attacks.bite, attacks.scratch], "https://vignette.wikia.nocookie.net/monsterhunter/images/e/e3/MHW-Pukei-Pukei_Render_001.png/revision/latest?cb=20171011151724"),
                 new Enemy("Tobi-Kadachi", 160, [items.armor, items.shield, items.potion], [attacks.bite, attacks.scratch], "https://vignette.wikia.nocookie.net/monsterhunter/images/a/a1/MHW-Tobi-Kadachi_Render_001.png/revision/latest?cb=20171011093207"),
-                new Enemy("Anjanath", 180, [items.armor, items.shield, items.potion], [attacks.bite, attacks.scratch], "https://vignette.wikia.nocookie.net/monsterhunter/images/9/9d/MHW-Anjanath_Render_001.png/revision/latest?cb=20171012123741")]
+                new Enemy("Anjanath", 180, [items.armor, items.shield, items.potion], [attacks.bite, attacks.scratch], "https://vignette.wikia.nocookie.net/monsterhunter/images/9/9d/MHW-Anjanath_Render_001.png/revision/latest?cb=20171012123741"),
+                new Enemy("Game Over", 200, [], [], "http://www.pngpix.com/wp-content/uploads/2016/10/PNGPIX-COM-Trophy-Cup-PNG-Transparent-Image.png")]
 
 var player = {
     health: 100,
@@ -67,7 +68,10 @@ var player = {
 
 var contentContainer = document.getElementById("content-container")
 
+
 function damage(weaponChoice){
+    var playerImg = document.getElementById("player-img")
+    playerImg.classList.add("shake")
     if (weaponChoice == 'Switch Weapon' && player.weapons[2].enabled == true){
         if (player.equipped == "Axe"){
             if (player.weapons[1].uses >= player.weapons[1].uselimit){
@@ -80,9 +84,10 @@ function damage(weaponChoice){
             if (enemies[player.defeated].dead != ""){
                 enemies[player.defeated].dead = ""
             }
+            checkHealth()
             enemyAttack()
             checkHealth()
-            draw()
+            draw(false)
             return
         } else {
             if (player.weapons[0].uses >= player.weapons[0].uselimit){
@@ -95,14 +100,16 @@ function damage(weaponChoice){
             if (enemies[player.defeated].dead != ""){
                 enemies[player.defeated].dead = ""
             }
+            checkHealth()
             enemyAttack()
             checkHealth()
-            draw()
+            draw(false)
             return
         }
+        checkHealth()
         enemyAttack()
         checkHealth()
-        draw()
+        draw(false)
         return
     }
     for (let i = 0; i < player.weapons.length; i++) {
@@ -122,17 +129,19 @@ function damage(weaponChoice){
             if (enemies[player.defeated].dead != ""){
                 enemies[player.defeated].dead = ""
             }
-            checkHealth()
+            if (checkHealth() == "You Win!"){
+                return
+            }
             enemyAttack()
             checkHealth()
-            draw()
+            draw(false)
             return
         }
     }
 }
 
 function sharpen(){
-    if (player.health <= 0){
+    if (player.health <= 0 || player.dead == "You Win!"){
         return
     }
     if (player.equipped == player.weapons[0].name){
@@ -143,7 +152,7 @@ function sharpen(){
         }
         enemyAttack()
         checkHealth()
-        draw()
+        draw(false)
         return
     } else {
         player.weapons[1].uses = 0
@@ -153,14 +162,14 @@ function sharpen(){
         }
         enemyAttack()
         checkHealth()
-        draw()
+        draw(false)
         return
     }
 }
 
 function enemyAttack(){
     var attack = enemies[player.defeated].attacks[Math.floor(Math.random() * (enemies[player.defeated].attacks.length))]
-    player.health -= attack.damage
+    player.health -= Math.floor(Math.random() * attack.damage)
     player.hits++
 }
 
@@ -171,7 +180,7 @@ function addMods(itemChoice){
         if (enemies[player.defeated].dead != ""){
             enemies[player.defeated].dead = ""
         }
-        draw()
+        draw(false)
         enemies[player.defeated].items[2].enabled = true
         return
     }
@@ -186,10 +195,14 @@ function addMods(itemChoice){
         }
     }
     enemies[player.defeated].currentMod += mod
-    draw()
+    draw(false)
 }
 
-function draw(){
+function draw(firstdraw){
+    if (firstdraw == false){
+        var playerImg = document.getElementById("player-img")
+        playerImg.classList.add("shake")
+    }
     var equippedWeapon = player.equipped
     if (player.weapons[0].name == equippedWeapon){
         var usesRemaining = player.weapons[0].uselimit - player.weapons[0].uses
@@ -228,7 +241,7 @@ function draw(){
             <h1>${enemies[player.defeated].dead}</h1>
         </div>
         <div class="col-md-6 col-sm-12 resize-col">
-            <img src="https://vignette.wikia.nocookie.net/monsterhunter/images/1/17/Sword_and_shield%2C_monster_hunter_tri.png/revision/latest?cb=20100605202331" alt="" class="resize p-t-1">
+            <img src="https://vignette.wikia.nocookie.net/monsterhunter/images/1/17/Sword_and_shield%2C_monster_hunter_tri.png/revision/latest?cb=20100605202331" alt="" class="resize shake" id="player-img">
             <div class="row weapon-btns-format p-t-1">
     `
     for (let i = 0; i < player.weapons.length; i++) {
@@ -250,12 +263,29 @@ function draw(){
                 </div>
             </div>`
     contentContainer.innerHTML = template
+    if (firstdraw == true){
+        var playerImg = document.getElementById("player-img")
+        playerImg.classList.remove("shake")
+    }
 }
 
 function checkHealth(){
     if (enemies[player.defeated].health <= 0 && player.health > 0){
         player.defeated ++
         enemies[player.defeated].dead = enemies[player.defeated - 1].name + " Defeated!"
+        if (enemies[player.defeated].name == "Game Over"){
+            for (let i = 0; i < player.weapons.length; i++) {
+                const weapon = player.weapons[i];
+                weapon.enabled = false            
+            }
+            for (let i = 0; i < enemies[player.defeated].items.length; i++) {
+                const item = enemies[player.defeated].items[i];
+                item.enabled = true
+            }
+            player.dead = "You Win!"
+            draw(false)
+            return player.dead
+        }
     } else if (player.health <= 0){
         player.dead = "You Died!"
         for (let i = 0; i < player.weapons.length; i++) {
@@ -266,7 +296,7 @@ function checkHealth(){
             const item = enemies[player.defeated].items[i];
             item.enabled = true
         }
-        draw()
+        draw(false)
     }
 }
 
@@ -297,7 +327,7 @@ function reset(){
         const item = enemies[player.defeated].items[i];
         item.enabled = false
     }
-    draw()
+    draw(true)
 }
 
-draw()
+draw(true)
