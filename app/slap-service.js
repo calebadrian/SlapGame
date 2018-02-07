@@ -74,32 +74,20 @@ function SlapService(){
 
     //public
 
-    this.getPlayerName = function getPlayerName(){
-        return player.name
-    }
-
     this.setPlayerName = function setPlayerName(name){
         player.name = name
-    }
-
-    this.getPlayerHealth = function getPlayerHealth(){
-        return player.health
     }
 
     this.decPlayerHealth = function decPlayerHealth(damageDone){
         player.health -= damageDone
     }
 
-    this.getPlayerHits = function getPlayerHits(){
-        return player.hits
-    }
-
     this.incPlayerHits = function incPlayerHits(){
         player.hits ++
     }
 
-    this.getPlayerWeaponAtIndex = function getPlayerWeaponAtIndex(index){
-        return player.weapons[index]
+    this.incPlayerWeaponUses = function incPlayerWeaponUses(index){
+        player.weapons[index].uses ++ 
     }
 
     this.getPlayerWeaponProp = function getPlayerWeaponProp(index, prop){
@@ -108,14 +96,6 @@ function SlapService(){
 
     this.setPlayerWeaponProp = function setPlayerWeaponProp(index, prop, val){
         player.weapons[index][prop] = val
-    }
-
-    this.getPlayerWeaponLength = function getPlayerWeaponLength(){
-        return player.weapons.length
-    }
-
-    this.getPlayerEquipped = function getPlayerEquipped(){
-        return player.equipped
     }
 
     this.getPlayerEquippedUses = function getPlayerEquippedUses(){
@@ -140,28 +120,12 @@ function SlapService(){
         player.equipped = toEquip
     }
 
-    this.getPlayerDead = function getPlayerDead(){
-        return player.dead
-    }
-
     this.setPlayerDead = function setPlayerDead(dead){
         player.dead = dead
     }
 
     this.incPlayerDefeated = function incPlayerDefeated(){
         player.defeated ++
-    }
-
-    this.getEnemiesName = function getEnemiesName(){
-        return enemies[player.defeated].name
-    }
-
-    this.getEnemiesHealth = function getEnemiesHealth(){
-        return enemies[player.defeated].health
-    }
-
-    this.getEnemiesMaxHealth = function getEnemiesMaxHealth(){
-        return enemies[player.defeated].maxHealth
     }
 
     this.getEnemiesPercentageHealth = function getEnemiesPercentageHealth(){
@@ -176,40 +140,12 @@ function SlapService(){
         enemies[player.defeated].health += val
     }
 
-    this.getEnemiesHits = function getEnemiesHits(){
-        return enemies[player.defeated].hits
-    }
-
     this.incEnemiesHits = function incEnemiesHits(){
         enemies[player.defeated].hits ++
     }
 
-    this.getEnemiesImg = function getEnemiesImg(){
-        return enemies[player.defeated].img
-    }
-
-    this.getEnemiesItemsAtIndex = function getEnemiesItemsAtIndex(index){
-        return enemies[player.defeated].items[index]
-    }
-
-    this.getEnemiesItemsProp = function getEnemiesItemsProp(index, prop){
-        return enemies[player.defeated].items[index][prop]
-    }
-
-    this.getEnemiesItemsLength = function getEnemiesItemsLength(){
-        return enemies[player.defeated].items.length
-    }
-
     this.setEnemiesItemsProp = function setEnemiesItemsProp(index, prop, val){
         enemies[player.defeated].items[index][prop] = val
-    }
-
-    this.getEnemiesDead = function getEnemiesDead(){
-        return enemies[player.defeated].dead
-    }
-
-    this.getEnemiesMod = function getEnemiesMod(){
-        return enemies[player.defeated].currentMod
     }
 
     this.setEnemiesDead = function setEnemiesDead(dead){
@@ -220,14 +156,6 @@ function SlapService(){
         enemies[player.defeated].dead = enemies[player.defeated - 1].name + " Defeated!"
     }
 
-    this.getEnemiesAttackAtIndex = function getEnemiesAttackAtIndex(index){
-        return enemies[player.defeated].attacks[index]
-    }
-
-    this.getEnemiesAttackLength = function getEnemiesAttackLength(){
-        return enemies[player.defeated].attacks.length
-    }
-
     this.incEnemiesMod = function incEnemiesMod(mod){
         enemies[player.defeated].currentMod += mod
     }
@@ -236,7 +164,7 @@ function SlapService(){
         if(enemies[player.defeated].currentMods.length == 0){
             for (let i = 0; i < enemies[player.defeated].items.length; i++) {
                 const item = enemies[player.defeated].items[i];
-                if (item.name == toAdd){
+                if (item.name == toAdd && item.enabled == false){
                     enemies[player.defeated].currentMods.push(item)
                     return
                 }
@@ -244,13 +172,13 @@ function SlapService(){
         }
         for (let i = 0; i < enemies[player.defeated].currentMods.length; i++) {
             const item = enemies[player.defeated].currentMods[i];
-            if (item.name == toAdd){
+            if (item.name == toAdd && item.enabled == false){
                 return false
             }
         }
         for (let i = 0; i < enemies[player.defeated].items.length; i++) {
             const item = enemies[player.defeated].items[i];
-            if (item.name == toAdd){
+            if (item.name == toAdd && item.enabled == false){
                 enemies[player.defeated].currentMods.push(item)
                 return
             }
@@ -288,10 +216,18 @@ function SlapService(){
     }
 
     this.getEnemiesAtIndex = function getEnemiesAtIndex(index){
-        return enemies[index]
+        return JSON.parse(JSON.stringify(enemies[index]))
     }
 
-    this.reset = function reset(){
+    this.setEnemiesPropAtIndex = function setEnemiesPropAtIndex(index, prop, val){
+        enemies[index][prop] = val
+    }
+
+    this.getPlayer = function getPlayer(){
+        return JSON.parse(JSON.stringify(player))
+    }
+
+    this.playerReset = function playerReset(){
         player.health = 100
         player.hits = 0
         player.currentMod = 0

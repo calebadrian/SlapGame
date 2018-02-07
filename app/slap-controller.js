@@ -26,25 +26,25 @@ function slapController() {
                 <h1>Welcome to the Ancient Forest!</h1>
             </div>
             <div class="col-sm-6 p-t-1">
-                <h4>Name: ${slapService.getPlayerName()}</h4>
-                <h4>Health: ${slapService.getPlayerHealth()}</h4>
-                <h4>Hits: ${slapService.getPlayerHits()}</h4>
+                <h4>Name: ${slapService.getPlayer().name}</h4>
+                <h4>Health: ${slapService.getPlayer().health}</h4>
+                <h4>Hits: ${slapService.getPlayer().hits}</h4>
             </div>
             <div class="col-sm-6 p-t-1">
-                <h4>Name: ${slapService.getEnemiesName()}</h4>
-                <h4>Health: ${slapService.getEnemiesHealth()}</h4>
-                <h4>Hits: ${slapService.getEnemiesHits()}</h4>
+                <h4>Name: ${slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).name}</h4>
+                <h4>Health: ${slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).health}</h4>
+                <h4>Hits: ${slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).hits}</h4>
             </div>
         </div>
         <div class="row">
             <div class="col-md-6 col-sm-12 col-format">
                 <img src="https://calebadrian.github.io/SlapGame/assets/photos/player.png" alt="" class="resize shake" id="player-img">
                     <div class="progress m-b-1">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: ${slapService.getPlayerHealth()}%" aria-valuenow="${slapService.getPlayerHealth()}" aria-valuemin="0" aria-valuemax="100">${slapService.getPlayerHealth()} hp</div>
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: ${slapService.getPlayer().health}%" aria-valuenow="${slapService.getPlayer().health}" aria-valuemin="0" aria-valuemax="100">${slapService.getPlayer().health} hp</div>
                     </div>
                     <div class="row">`
-        for (let i = 0; i < slapService.getPlayerWeaponLength(); i++) {
-            const weapon = slapService.getPlayerWeaponAtIndex(i);
+        for (let i = 0; i < slapService.getPlayer().weapons.length; i++) {
+            const weapon = slapService.getPlayer().weapons[i];
             template += `
                     <div class="col-md-3 col-sm-12 m-b-1">
                         <button class="btn-primary weapon-btn-format" onclick="app.controllers.slapController.damage('${weapon.name}')">${weapon.name}</button>
@@ -56,22 +56,22 @@ function slapController() {
                         <button class="btn-danger weapon-btn-format" onclick="app.controllers.slapController.sharpen()">Sharpen</button>
                     </div>
                     <div class="col-sm-12">
-                        <h4>Currently Equipped Weapon: ${slapService.getPlayerEquipped()}</h4>
+                        <h4>Currently Equipped Weapon: ${slapService.getPlayer().equipped}</h4>
                         <h4>Current Weapon Uses: ${slapService.getPlayerEquippedUseLimit() - slapService.getPlayerEquippedUses()}</h4>
-                        <h4>${slapService.getPlayerDead()}</h4>
+                        <h4>${slapService.getPlayer().dead}</h4>
                     </div>
                 </div>
             </div>
             <div class="col-md-6 col-sm-12 col-format">
-            <img src="${slapService.getEnemiesImg()}" alt="" class="resize">
+            <img src="${slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).img}" alt="" class="resize">
             <div class="progress m-b-1">
-                <div class="progress-bar bg-danger progress-bar-striped progress-bar-animated" role="progressbar" style="width: ${slapService.getEnemiesPercentageHealth()}%" aria-valuenow="${slapService.getEnemiesHealth()}" aria-valuemin="0" aria-valuemax="${slapService.getEnemiesMaxHealth()}">${slapService.getEnemiesHealth()} hp</div>
+                <div class="progress-bar bg-danger progress-bar-striped progress-bar-animated" role="progressbar" style="width: ${slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).health}%" aria-valuenow="${slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).health}%}" aria-valuemin="0" aria-valuemax="${slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).maxHealth}%}">${slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).health} hp</div>
             </div>
                 <div class="row">
         `
 
-        for (let i = 0; i < slapService.getEnemiesItemsLength(); i++) {
-            const item = slapService.getEnemiesItemsAtIndex(i);
+        for (let i = 0; i < slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).items.length; i++) {
+            const item = slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).items[i];
             template += `
                 <div class="col-md-3 col-sm-12 m-b-1">
                     <button class="btn-primary weapon-btn-format" onclick="app.controllers.slapController.addMods('${item.name}')">${item.name}</button>
@@ -83,7 +83,7 @@ function slapController() {
                     </div>
                     <div class="col-sm-12">
                         <h4>Current Mods: ${slapService.getEnemiesCurrentMods()}</h4>
-                        <h4>${slapService.getEnemiesDead()}</h4>
+                        <h4>${slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).dead}</h4>
                     </div>
                 </div>
             </div>`
@@ -98,45 +98,41 @@ function slapController() {
      * This function automates the enemies attack
      */
     function enemyAttack() {
-        if (slapService.getPlayerDead != "") {
+        if (slapService.getPlayer().dead != "") {
             slapService.setPlayerDead("")
         }
-        var attack = slapService.getEnemiesAttackAtIndex((Math.floor(Math.random())) * (slapService.getEnemiesAttackLength()))
+        var attack = slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).attacks[((Math.floor(Math.random())) * (slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).attacks.length))]
         var damageDealt = Math.floor(Math.random() * attack.damage)
         slapService.decPlayerHealth(damageDealt)
         if (damageDealt == 0) {
-            slapService.setPlayerDead("You dodged " + slapService.getEnemiesName() + "'s attack!")
+            slapService.setPlayerDead("You dodged " + slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).name + "'s attack!")
             return
         }
         slapService.incPlayerHits()
     }
 
     function checkHealth(){
-        if (slapService.getEnemiesHealth() <= 0 && slapService.getPlayerHealth() > 0){
+        if (slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).health <= 0 && slapService.getPlayer().health > 0){
             slapService.incPlayerDefeated()
             slapService.setEnemiesDeadDefeated()
-            if (slapService.getEnemiesName() == "Game Over"){
-                for (let i = 0; i < slapService.getPlayerWeaponLength(); i++) {
-                    const weapon = slapService.getPlayerWeaponAtIndex(i);
-                    weapon.enabled = false            
+            if (slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).name == "Game Over"){
+                for (let i = 0; i < slapService.getPlayer().weapons.length; i++) {
+                    slapService.setPlayerWeaponProp(i, 'enabled', false)          
                 }
-                for (let i = 0; i < slapService.getEnemiesItemsLength(); i++) {
-                    const item = slapService.getEnemiesItemsAtIndex(i);
-                    item.enabled = true
+                for (let i = 0; i < slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).items.length; i++) {
+                    slapService.setEnemiesItemsProp(i, 'enabled', true)
                 }
                 slapService.setPlayerDead("You Win!")
                 draw(false, false)
-                return slapService.getPlayerDead()
+                return slapService.getPlayer().dead
             }
-        } else if (slapService.getPlayerHealth() <= 0){
+        } else if (slapService.getPlayer().health <= 0){
             slapService.setPlayerDead("You Died!")
-            for (let i = 0; i < slapService.getPlayerWeaponLength(); i++) {
-                const weapon = slapService.getPlayerWeaponAtIndex(i);
-                weapon.enabled = false            
+            for (let i = 0; i < slapService.getPlayer().weapons.length; i++) {
+                slapService.setPlayerWeaponProp(i, 'enabled', false)          
             }
-            for (let i = 0; i < slapService.getEnemiesItemsLength(); i++) {
-                const item = slapService.getEnemiesItemsAtIndex(i);
-                item.enabled = true
+            for (let i = 0; i < slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).items.length; i++) {
+                slapService.setEnemiesItemsProp(i, 'enabled', true)
             }
             draw(false, false)
         }
@@ -150,19 +146,19 @@ function slapController() {
     this.damage = function damage(weaponChoice) {
         var playerImg = document.getElementById("player-img")
         playerImg.classList.add("shake")
-        if (slapService.getEnemiesDead() != "") {
+        if (slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).dead != "") {
             slapService.setEnemiesDead("")
         }
         if (weaponChoice == 'Switch Weapon' && slapService.getPlayerWeaponProp(2, 'enabled') == true) {
-            if (slapService.getPlayerEquipped() == "Axe") {
-                if (slapService.getPlayerWeaponProp(1, 'uses') >= slapService.getPlayerWeaponProp(1, 'uselimit')) {
+            if (slapService.getPlayer().equipped == "Axe") {
+                if (slapService.getPlayer().weapons[1]['uses'] >= slapService.getPlayer().weapons[1]['uselimit']) {
                     slapService.setPlayerWeaponProp(1, 'enabled', false)
                 } else {
                     slapService.setPlayerWeaponProp(1, 'enabled', true)
                 }
                 slapService.setPlayerEquipped("Sword")
                 slapService.setPlayerWeaponProp(0, 'enabled', false)
-                if (slapService.getEnemiesDead() != "") {
+                if (slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).dead != "") {
                     slapService.setEnemiesDead("")
                 }
                 checkHealth()
@@ -171,14 +167,14 @@ function slapController() {
                 draw(false, false)
                 return
             } else {
-                if (slapService.getPlayerWeaponProp(0, 'uses') >= slapService.getPlayerWeaponProp(0, 'uselimit')) {
+                if (slapService.getPlayer().weapons[0]['uses'] >= slapService.getPlayer().weapons[0]['uselimit']) {
                     slapService.setPlayerWeaponProp(0, 'enabled', false)
                 } else {
                     slapService.setPlayerWeaponProp(0, 'enabled', true)
                 }
                 slapService.setPlayerEquipped("Axe")
                 slapService.setPlayerWeaponProp(1, 'enabled', false)
-                if (slapService.getEnemiesDead() != "") {
+                if (slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).dead != "") {
                     slapService.setEnemiesDead("")
                 }
                 checkHealth()
@@ -193,17 +189,16 @@ function slapController() {
             draw(false, false)
             return
         }
-        for (let i = 0; i < slapService.getPlayerWeaponLength(); i++) {
-            const weapon = slapService.getPlayerWeaponAtIndex(i)
-            if (weaponChoice == weapon.name && weapon.enabled == true) {
-                weapon.uses++
-                if (weapon.uses == weapon.uselimit) {
-                    weapon.enabled = false
+        for (let i = 0; i < slapService.getPlayer().weapons.length; i++) {
+            if (weaponChoice == slapService.getPlayer().weapons[i].name && slapService.getPlayer().weapons[i].enabled == true) {
+                slapService.incPlayerWeaponUses(i)
+                if (slapService.getPlayer().weapons[i].uses == slapService.getPlayer().weapons[i].uselimit) {
+                    slapService.setPlayerWeaponProp(i, 'enabled', false)
                 }
-                var damageCalc = Math.floor(Math.random() * weapon.damage) * slapService.getEnemiesMod()
+                var damageCalc = Math.floor(Math.random() * slapService.getPlayer().weapons[i].damage) * slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).currentMod
                 slapService.setEnemiesHealth(damageCalc)
                 if (damageCalc == 0) {
-                    slapService.setEnemiesDead(slapService.getEnemiesName() + " dodged your attack")
+                    slapService.setEnemiesDead(slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).name + " dodged your attack")
                 } else {
                     slapService.incEnemiesHits()
                 }
@@ -222,13 +217,13 @@ function slapController() {
      * This function resets the amount of uses a weapon has on click by user
      */
     this.sharpen = function sharpen() {
-        if (slapService.getPlayerHealth() <= 0 || slapService.getPlayerDead() == "You Win!") {
+        if (slapService.getPlayer().health <= 0 || slapService.getPlayer().dead == "You Win!") {
             return
         }
-        if (slapService.getPlayerEquipped() == slapService.getPlayerWeaponProp(0, 'name')) {
+        if (slapService.getPlayer().equipped == slapService.getPlayer().weapons[0]['name']) {
             slapService.setPlayerWeaponProp(0, 'uses', 0)
             slapService.setPlayerWeaponProp(0, 'enabled', true)
-            if (slapService.getEnemiesDead() != "") {
+            if (slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).dead != "") {
                 slapService.setEnemiesDead("")
             }
             enemyAttack()
@@ -238,7 +233,7 @@ function slapController() {
         } else {
             slapService.setPlayerWeaponProp(1, 'uses', 0)
             slapService.setPlayerWeaponProp(1, 'enabled', true)
-            if (slapService.getEnemiesDead() != "") {
+            if (slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).dead != "") {
                 slapService.setEnemiesDead("")
             }
             enemyAttack()
@@ -266,25 +261,22 @@ function slapController() {
      */
     this.reset = function reset(){
         for (let i = 0; i < slapService.getEnemiesLength(); i++) {
-            const enemy = slapService.getEnemiesAtIndex(i);
-            enemy.health = enemy.maxHealth
-            enemy.hits = 0
-            enemy.currentMod = 1
-            enemy.currentMods = []
+            slapService.setEnemiesPropAtIndex(i, 'health', slapService.getEnemiesAtIndex(i).maxHealth)
+            slapService.setEnemiesPropAtIndex(i, 'hits', 0)
+            slapService.setEnemiesPropAtIndex(i, 'currentMod', 1)
+            slapService.setEnemiesPropAtIndex(i, 'currentMods', [])
         }
-        slapService.reset()
-        for (let i = 0; i < slapService.getPlayerWeaponLength(); i++) {
-            const weapon = slapService.getPlayerWeaponAtIndex(i);
+        slapService.playerReset()
+        for (let i = 0; i < slapService.getPlayer().weapons.length; i++) {
             if (i == 1){
-                weapon.enabled = false
+                slapService.setPlayerWeaponProp(i, 'enabled', false)
             } else {
-                weapon.enabled = true
+                slapService.setPlayerWeaponProp(i, 'enabled', true)
             }
-            weapon.uses = 0
+            slapService.setPlayerWeaponProp(i, 'uses', 0)
         }
-        for (let i = 0; i < slapService.getEnemiesItemsLength(); i++) {
-            const item = slapService.getEnemiesItemsAtIndex(i);
-            item.enabled = false
+        for (let i = 0; i < slapService.getEnemiesAtIndex(slapService.getPlayer().defeated).items.length; i++) {
+            slapService.setEnemiesItemsProp(i, 'enabled', false)
         }
         draw(true, false)
     }
