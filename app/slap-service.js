@@ -45,7 +45,7 @@ function SlapService(){
     
     var weapons = {
         axe: new Weapon("Axe", 60, "A blunt axe that does a small amount of damage", true, 7),
-        sword: new Weapon("Sword", 90, "A nice sharpened sword that does a fair amount of damage", false, 3),
+        sword: new Weapon("Sword", 90, "A nice sharpened sword that does a fair amount of damage", true, 3),
         switchWeapon: new Weapon("Switch Weapon", 0, "Lose a turn and switch weapons", true, -1)
     }
     
@@ -65,26 +65,18 @@ function SlapService(){
         health: 100,
         name: "Hunter",
         hits: 0,
-        weapons: [weapons.axe, weapons.sword, weapons.switchWeapon],
+        weapons: {
+            axe: weapons.axe,
+            sword: weapons.sword,
+            switchWeapon: weapons.switchWeapon
+        },
         currentMod: 1,
         defeated: 0,
         dead: "",
-        equipped: "Axe"
+        equipped: weapons.axe
     }
 
     //public
-
-    this.setPlayerName = function setPlayerName(name){
-        player.name = name
-    }
-
-    this.decPlayerHealth = function decPlayerHealth(damageDone){
-        player.health -= damageDone
-    }
-
-    this.incPlayerHits = function incPlayerHits(){
-        player.hits ++
-    }
 
     this.incPlayerWeaponUses = function incPlayerWeaponUses(index){
         player.weapons[index].uses ++ 
@@ -98,62 +90,12 @@ function SlapService(){
         player.weapons[index][prop] = val
     }
 
-    this.getPlayerEquippedUses = function getPlayerEquippedUses(){
-        for (let i = 0; i < player.weapons.length; i++) {
-            const weapon = player.weapons[i];
-            if (weapon.name == player.equipped){
-                return weapon.uses
-            }
-        }
-    }
-
-    this.getPlayerEquippedUseLimit = function getPlayerEquippedUseLimit(){
-        for (let i = 0; i < player.weapons.length; i++) {
-            const weapon = player.weapons[i];
-            if (weapon.name == player.equipped){
-                return weapon.uselimit
-            }
-        }
-    }
-
-    this.setPlayerEquipped = function setPlayerEquipped(toEquip){
-        player.equipped = toEquip
-    }
-
-    this.setPlayerDead = function setPlayerDead(dead){
-        player.dead = dead
-    }
-
-    this.incPlayerDefeated = function incPlayerDefeated(){
-        player.defeated ++
-    }
-
-    this.getEnemiesPercentageHealth = function getEnemiesPercentageHealth(){
-        return  (enemies[player.defeated].health/enemies[player.defeated].maxHealth) * 100
-    }
-
-    this.setEnemiesHealth = function setEnemiesHealth(damageDone){
-        enemies[player.defeated].health -= damageDone
-    }
-
-    this.incEnemiesHealth = function incEnemiesHealth(val){
-        enemies[player.defeated].health += val
-    }
-
     this.incEnemiesHits = function incEnemiesHits(){
         enemies[player.defeated].hits ++
     }
 
     this.setEnemiesItemsProp = function setEnemiesItemsProp(index, prop, val){
         enemies[player.defeated].items[index][prop] = val
-    }
-
-    this.setEnemiesDead = function setEnemiesDead(dead){
-        enemies[player.defeated].dead = dead
-    }
-
-    this.setEnemiesDeadDefeated = function setEnemiesDeadDefeated(){
-        enemies[player.defeated].dead = enemies[player.defeated - 1].name + " Defeated!"
     }
 
     this.incEnemiesMod = function incEnemiesMod(mod){
@@ -220,11 +162,43 @@ function SlapService(){
     }
 
     this.setEnemiesPropAtIndex = function setEnemiesPropAtIndex(index, prop, val){
+        if(prop == 'health'){
+            if (val >= 100){
+                enemies[index][prop] = val
+                return
+            }
+            enemies[index][prop] += val
+            return
+        }
         enemies[index][prop] = val
     }
 
     this.getPlayer = function getPlayer(){
         return JSON.parse(JSON.stringify(player))
+    }
+
+    this.setPlayerProp  = function setPlayerProp(prop, val){
+        if (prop == 'health'){
+            player[prop] -= val
+            return
+        }
+        if (prop == 'hits' || prop == 'defeated'){
+            player[prop] += val
+            return
+        }
+        player[prop] = val
+    }
+
+    this.setPlayerEquippedProp = function setPlayerEquippedProp(prop, val){
+        if (val == 0){
+            player.equipped[prop] = val
+            return
+        }
+        player.equipped[prop] += val
+    }
+
+    this.getPlayerEquippedProp = function getPlayerEquippedProp(prop){
+        return player.equipped[prop]
     }
 
     this.playerReset = function playerReset(){
@@ -233,7 +207,7 @@ function SlapService(){
         player.currentMod = 0
         player.defeated = 0
         player.dead = ""
-        player.equipped = "Axe"
+        player.equipped = weapons.axe
     }
 
 
